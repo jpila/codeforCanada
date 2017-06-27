@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="jquery-csv.js"></script>
+<script>
+     $(document).ready(function() {
+     $.ajax({
+         type: "GET",
+         url: "dev-challenge-data.csv",
+         dataType: "text",
+         success: function(data) {(data);},
+      }).done(function( data ) {
+        var result = $.csv.toObjects(data);
+      //  console.log(result[1]);
+
+      //Get List of unique violations
+        var flags = [], output = [], l = result.length, i;
+
+        for( i=0; i<l; i++) {
+        if( flags[result[i].violation_category]) continue;
+        console.log([result[i]]);
+      flags[result[i].violation_category] = true;
+        output.push(result[i].violation_category);
+    }
+    console.log(output);
+
+    for(i = 0; i < output.length; i ++){
+
+        //Filter Original Array into arrays of different violations
+        let sorted =result.filter(function(res){
+          return res.violation_category == output[i];
+        }).sort(function(a,b){
+          //sort new array by date.
+          return Date.parse(a.violation_date) - Date.parse(b.violation_date);
+        })
+
+        //output to html.
+      let outputContainer =  document.createElement('p');
+      outputContainer.innerHTML = "<h1>Number of Violations in: " + output[i] + ": " + sorted.length +" violations." + "</h1>" + "<br>"+ "the earliest date for this violation occured was: " + sorted[0].violation_date + "<br> the latest date this violation occured was: " + sorted[sorted.length-1].violation_date;  ;
+      document.getElementById("output").appendChild(outputContainer);
+    }
+
+      //Test Case for single category.
+
+      let garbageUnsorted = result.filter(function (res) {
+        //console.log(res.violation_category == "Garbage and Refuse");
+        return res.violation_category == "Garbage and Refuse";
+      });
+      // console.log(garbageUnsorted[1].violation_date);
+      // console.log(Date.parse(garbageUnsorted[1].violation_date));
+      //console.log(garbageUnsorted);
+      // console.log(garbageUnsorted);
+      let garbageSorted = garbageUnsorted.sort(function(a,b){
+        // Turn your strings into dates, and then subtract them
+        // to get a value that is either negative, positive, or zero.
+        return  Date.parse(a.violation_date) - Date.parse(b.violation_date);
+      });
+      //  console.log(garbageUnsorted);
+      // console.log(garbageSorted);
+
+
+  });
+ });
+
+
+
+   </script>
+   </head>
+   <body>
+     <h1>Please Load files onto a localhost server in order to use the AJAX call.</h1>
+
+   <div id='output'>
+
+   </div>
+   </body>
+</html>
